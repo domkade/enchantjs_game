@@ -5,7 +5,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         enchant.Sprite.call(this, 16, 16);
         this.image = game.assets['player.png'];
         this.x = x; this.y = y; this.frame = 0;
-	game.keybind(90, 'shot');
+        game.keybind(90, 'shot');
         game.rootScene.addEventListener('touchstart', function(e){ player.x = e.x; game.touched = true; });
         game.rootScene.addEventListener('touchend', function(e){ player.x = e.x; game.touched = false; });
         game.rootScene.addEventListener('touchmove', function(e){ player.x = e.x; });
@@ -31,6 +31,31 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 new PlayerBullet(player.x, player.y);
             }
         });
+    }
+});
+
+var Enemy = enchant.Class.create(enchant.Sprite, {
+    initialize: function(x, y){
+        enchant.Sprite.call(this, 16, 16);
+        this.image = game.assets['enemy.png'];
+        this.x = x;
+        this.y = y;
+        this.frame = 0;
+        this.cnt = 0;
+        this.speed = 3;
+        game.rootScene.addChild(this);
+    },
+    onenterframe: function(){
+        this.y += this.speed;
+        if(this.y > 320 || this.x > 320 || this.x < -this.width || this.y < -this.height){
+            this.remove();
+        }
+        if(this.time++ % 10 == 0){
+            new EnemyShoot(this.x, this.y);
+        }
+    },
+    remove: function(){
+        game.rootScene.removeChild(this);
     }
 });
 
@@ -62,9 +87,17 @@ window.onload = function() {
     game.fps = 60; game.score = 0; game.touched = false;
     game.preload('player.png');
     game.preload('playerBullet.png');
+    game.preload('enemy.png');
+    enemies = [];
     game.onload = function() {
         player = new Player(160, 300);
         game.rootScene.backgroundColor = 'black';
+        game.addEventListener('enterframe', function(){
+            if(Math.random() < 0.1){
+                var x = Math.random() * 320;
+                var enemy = new Enemy(x, 0);
+            }
+        });
     }
     game.start();
 }
