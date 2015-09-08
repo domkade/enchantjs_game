@@ -44,6 +44,7 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         this.cnt = 0;
         this.speed = 3;
         game.rootScene.addChild(this);
+        enemies[enemies.length] = this;
     },
     onenterframe: function(){
         this.y += this.speed;
@@ -54,8 +55,10 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
             new EnemyShoot(this.x, this.y);
         }
     },
-    remove: function(){
+    remove: function(i){
         game.rootScene.removeChild(this);
+        delete enemies[i];
+        delete this;
     }
 });
 
@@ -72,13 +75,23 @@ var Bullet = enchant.Class.create(enchant.Sprite, {
             this.remove();
         }
     },
-    remove: function(){ game.rootScene.removeChild(this); delete this; }
+    remove: function(){
+        game.rootScene.removeChild(this);
+        delete this;
+    }
 });
 
 var PlayerBullet = enchant.Class.create(Bullet, {
     initialize: function(x, y){
         Bullet.call(this, x, y, -10);
         this.image = game.assets['playerBullet.png'];
+        this.addEventListener('enterframe', function(){
+            for(var i in enemies){
+                if(enemies[i].intersect(this)){
+                    this.remove(); enemies[i].remove(i);
+                }
+            }
+        });
     }
 });
 
