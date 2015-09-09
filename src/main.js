@@ -35,19 +35,24 @@ var Player = enchant.Class.create(enchant.Sprite, {
 });
 
 var Enemy = enchant.Class.create(enchant.Sprite, {
-    initialize: function(x, y){
+    initialize: function(x, y, i){
         enchant.Sprite.call(this, 16, 16);
         this.image = game.assets['enemy.png'];
         this.x = x;
         this.y = y;
+        this.i = i;
         this.frame = 0;
         this.cnt = 0;
-        this.speed = 3;
+        this.speed = 1;
+        this.life = 5;
         game.rootScene.addChild(this);
         enemies[enemies.length] = this;
     },
     onenterframe: function(){
         this.y += this.speed;
+        if(this.life <= 0){
+            this.remove();
+        }
         if(this.y > 320 || this.x > 320 || this.x < -this.width || this.y < -this.height){
             this.remove();
         }
@@ -55,9 +60,9 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
             new EnemyShoot(this.x, this.y);
         }
     },
-    remove: function(i){
+    remove: function(){
         game.rootScene.removeChild(this);
-        delete enemies[i];
+        delete enemies[this.i];
         delete this;
     }
 });
@@ -88,7 +93,7 @@ var PlayerBullet = enchant.Class.create(Bullet, {
         this.addEventListener('enterframe', function(){
             for(var i in enemies){
                 if(enemies[i].intersect(this)){
-                    this.remove(); enemies[i].remove(i);
+                    this.remove(); enemies[i].life--;
                 }
             }
         });
@@ -106,9 +111,9 @@ window.onload = function() {
         player = new Player(160, 300);
         game.rootScene.backgroundColor = 'black';
         game.addEventListener('enterframe', function(){
-            if(Math.random() < 0.1){
+            if(Math.random() < 0.03){
                 var x = Math.random() * 320;
-                var enemy = new Enemy(x, 0);
+                var enemy = new Enemy(x, 0, enemies.length);
             }
         });
     }
