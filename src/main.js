@@ -51,6 +51,7 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
     onenterframe: function(){
         this.y += this.speed;
         if(this.life <= 0){
+            game.score += 100;
             this.remove();
         }
         if(this.y > 320 || this.x > 320 || this.x < -this.width || this.y < -this.height){
@@ -119,11 +120,16 @@ window.onload = function() {
     game.preload('playerBullet.png');
     game.preload('enemy.png');
     game.preload('enemyBullet.png');
+    game.score = 0;
+    var scoreLabel = new Label("SCORE : 0");
+    scoreLabel.x = 240; scoreLabel.y = 5; scoreLabel.color = "white";
+    game.rootScene.addChild(scoreLabel);
     enemies = [];
     game.onload = function() {
         player = new Player(160, 300);
         game.rootScene.backgroundColor = 'black';
         game.addEventListener('enterframe', function(){
+            scoreLabel.text = "SCORE : " + game.score;
             if(Math.random() < 0.03){
                 var x = Math.random() * 320;
                 var enemy = new Enemy(x, 0, enemies.length);
