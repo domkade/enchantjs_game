@@ -56,8 +56,8 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         if(this.y > 320 || this.x > 320 || this.x < -this.width || this.y < -this.height){
             this.remove();
         }
-        if(this.time++ % 10 == 0){
-            new EnemyShoot(this.x, this.y);
+        if(this.cnt++ % 60 == 0){
+            new EnemyBullet(this.x + 4, this.y + 4);
         }
     },
     remove: function(){
@@ -68,8 +68,8 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
 });
 
 var Bullet = enchant.Class.create(enchant.Sprite, {
-    initialize: function(x, y, speed){
-        enchant.Sprite.call(this, 16, 16);
+    initialize: function(x, y, xsize, ysize, speed){
+        enchant.Sprite.call(this, xsize, ysize);
         this.x = x; this.y = y; this.frame = 1;
         this.speed = speed;
         game.rootScene.addChild(this);
@@ -88,7 +88,7 @@ var Bullet = enchant.Class.create(enchant.Sprite, {
 
 var PlayerBullet = enchant.Class.create(Bullet, {
     initialize: function(x, y){
-        Bullet.call(this, x, y, -10);
+        Bullet.call(this, x, y, 16, 16, -10);
         this.image = game.assets['playerBullet.png'];
         this.addEventListener('enterframe', function(){
             for(var i in enemies){
@@ -100,12 +100,25 @@ var PlayerBullet = enchant.Class.create(Bullet, {
     }
 });
 
+var EnemyBullet = enchant.Class.create(Bullet, {
+    initialize: function(x, y){
+        Bullet.call(this, x, y, 8, 8, 5);
+        this.image = game.assets['enemyBullet.png'];
+        this.addEventListener('enterframe', function(){
+            if(this.intersect(player)){
+                game.pause();
+            }
+        });
+    }
+});
+
 window.onload = function() {
     game = new Game(320, 320);
     game.fps = 60; game.score = 0; game.touched = false;
     game.preload('player.png');
     game.preload('playerBullet.png');
     game.preload('enemy.png');
+    game.preload('enemyBullet.png');
     enemies = [];
     game.onload = function() {
         player = new Player(160, 300);
