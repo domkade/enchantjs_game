@@ -28,7 +28,9 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 player.x -= speed;
             }
             if(game.input.shot && game.frame % 5 == 0){
-                new PlayerBullet(player.x, player.y);
+                new PlayerBullet(player.x, player.y, 5 * Math.PI / 12);
+                new PlayerBullet(player.x, player.y, Math.PI / 2);
+                new PlayerBullet(player.x, player.y, 7 * Math.PI / 12);
             }
         });
     }
@@ -46,7 +48,7 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         this.speed = 1;
         this.life = 5;
         game.rootScene.addChild(this);
-        enemies[enemies.length] = this;
+        enemies[this.i] = this;
     },
     onenterframe: function(){
         this.y += this.speed;
@@ -57,8 +59,9 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         if(this.y > 320 || this.x > 320 || this.x < -this.width || this.y < -this.height){
             this.remove();
         }
-        if(this.cnt++ % 60 == 0){
-            new EnemyBullet(this.x + 4, this.y + 4);
+        if(this.cnt++ % 2 == 0){
+            var enemyBullet = new EnemyBullet(this.x + 4, this.y + 4, Math.random() * Math.PI, enemyBullets.length);
+            enemyBullets[enemyBullets.length] = enemyBullet;
         }
     },
     remove: function(){
@@ -69,14 +72,16 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
 });
 
 var Bullet = enchant.Class.create(enchant.Sprite, {
-    initialize: function(x, y, xsize, ysize, speed){
+    initialize: function(x, y, xsize, ysize, speed, angle){
         enchant.Sprite.call(this, xsize, ysize);
         this.x = x; this.y = y; this.frame = 1;
-        this.speed = speed;
+        this.vx = speed * Math.cos(angle);
+        this.vy = speed * Math.sin(angle);
         game.rootScene.addChild(this);
     },
     onenterframe:function(){
-        this.y += this.speed;
+        this.x += this.vx;
+        this.y += this.vy;
         if(this.y > 320 || this.x > 320 || this.x < -this.width || this.y < -this.height){
             this.remove();
         }
@@ -88,10 +93,15 @@ var Bullet = enchant.Class.create(enchant.Sprite, {
 });
 
 var PlayerBullet = enchant.Class.create(Bullet, {
-    initialize: function(x, y){
-        Bullet.call(this, x, y, 16, 16, -10);
+    initialize: function(x, y, angle){
+        Bullet.call(this, x, y, 16, 16, -5, angle);
         this.image = game.assets['playerBullet.png'];
         this.addEventListener('enterframe', function(){
+            for(var i in enemyBullets){
+                if(enemyBullets[i].intersect(this)){
+                    this.remove(); enemyBullets[i].remove();
+                }
+            }
             for(var i in enemies){
                 if(enemies[i].intersect(this)){
                     this.remove(); enemies[i].life--;
@@ -102,14 +112,20 @@ var PlayerBullet = enchant.Class.create(Bullet, {
 });
 
 var EnemyBullet = enchant.Class.create(Bullet, {
-    initialize: function(x, y){
-        Bullet.call(this, x, y, 8, 8, 5);
+    initialize: function(x, y, angle, i){
+        Bullet.call(this, x, y, 8, 8, 5, angle);
+        this.i = i;
         this.image = game.assets['enemyBullet.png'];
         this.addEventListener('enterframe', function(){
             if(this.intersect(player)){
-                game.pause();
+                //game.pause();
             }
         });
+    },
+    remove: function(){
+        game.rootScene.removeChild(this);
+        delete this;
+        delete enemyBullets[this.i];
     }
 });
 
@@ -125,11 +141,12 @@ window.onload = function() {
     scoreLabel.x = 240; scoreLabel.y = 5; scoreLabel.color = "white";
     game.rootScene.addChild(scoreLabel);
     enemies = [];
+    enemyBullets = [];
     game.onload = function() {
         player = new Player(160, 300);
         game.rootScene.backgroundColor = 'black';
         game.addEventListener('enterframe', function(){
-            scoreLabel.text = "SCORE : " + game.score;
+            scoreLabel.text = "EB : " + enemyBullets.length;
             if(Math.random() < 0.03){
                 var x = Math.random() * 320;
                 var enemy = new Enemy(x, 0, enemies.length);
