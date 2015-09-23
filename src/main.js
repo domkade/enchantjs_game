@@ -2,16 +2,16 @@ enchant();
 
 var Player = enchant.Class.create(enchant.Sprite, {
     initialize: function(x, y){
-        enchant.Sprite.call(this, 16, 16);
+        enchant.Sprite.call(this, 48, 48);
         this.image = game.assets['player.png'];
-        this.x = x; this.y = y; this.frame = 0;
+        this.x = x; this.y = y; this.frame = 2;
         game.keybind(90, 'shot');
         game.rootScene.addEventListener('touchstart', function(e){ player.x = e.x; game.touched = true; });
         game.rootScene.addEventListener('touchend', function(e){ player.x = e.x; game.touched = false; });
         game.rootScene.addEventListener('touchmove', function(e){ player.x = e.x; });
-        game.rootScene.addChild(this);
         game.rootScene.addEventListener('enterframe', function() {
             var speed = 3;
+            player.flameCount++;
             if ((game.input.up || game.input.down) && (game.input.right || game.input.left)){
                speed *= 0.71;
             }
@@ -23,9 +23,19 @@ var Player = enchant.Class.create(enchant.Sprite, {
             }
             if (game.input.right) {
                 player.x += speed;
-            }
-            if (game.input.left) {
+                if(player.frame < 4 && game.frame % 5 == 0){
+                    player.frame++;
+                }
+            }else if (game.input.left) {
                 player.x -= speed;
+                if(player.frame > 0 && game.frame % 5 == 0){
+                    player.frame--;
+                }
+            }else{
+                if(game.frame % 5 == 0){
+                    if(player.frame < 2)player.frame++;
+                    if(player.frame > 2)player.frame--;
+                }
             }
             if(game.input.shot && game.frame % 5 == 0){
                 new PlayerBullet(player.x, player.y, 5 * Math.PI / 12);
@@ -33,6 +43,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 new PlayerBullet(player.x, player.y, 7 * Math.PI / 12);
             }
         });
+        game.rootScene.addChild(this);
     }
 });
 
@@ -130,7 +141,7 @@ var EnemyBullet = enchant.Class.create(Bullet, {
 });
 
 window.onload = function() {
-    game = new Game(320, 320);
+    game = new Game(320, 480);
     game.fps = 60; game.score = 0; game.touched = false;
     game.preload('player.png');
     game.preload('playerBullet.png');
