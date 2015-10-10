@@ -1,5 +1,8 @@
 enchant();
 
+window_size_x = 320;
+window_size_y = 480;
+
 var Player = enchant.Class.create(enchant.Sprite, {
     initialize: function(x, y){
         enchant.Sprite.call(this, 48, 48);
@@ -67,7 +70,7 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
             game.score += 100;
             this.remove();
         }
-        if(this.y > 320 || this.x > 320 || this.x < -this.width || this.y < -this.height){
+        if(this.y > window_size_y || this.x > window_size_x || this.x < -this.width || this.y < -this.height){
             this.remove();
         }
         if(this.cnt++ % 2 == 0){
@@ -93,7 +96,7 @@ var Bullet = enchant.Class.create(enchant.Sprite, {
     onenterframe:function(){
         this.x += this.vx;
         this.y += this.vy;
-        if(this.y > 320 || this.x > 320 || this.x < -this.width || this.y < -this.height){
+        if(this.y > window_size_y || this.x > window_size_x || this.x < -this.width || this.y < -this.height){
             this.remove();
         }
     },
