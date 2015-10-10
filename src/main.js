@@ -3,7 +3,7 @@ enchant();
 var Player = enchant.Class.create(enchant.Sprite, {
     initialize: function(x, y){
         enchant.Sprite.call(this, 48, 48);
-        this.image = game.assets['./src/player.png'];
+        this.image = game.assets['player.png'];
         this.x = x; this.y = y; this.frame = 2;
         game.keybind(90, 'shot');
         game.rootScene.addEventListener('touchstart', function(e){ player.x = e.x; game.touched = true; });
@@ -50,7 +50,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
 var Enemy = enchant.Class.create(enchant.Sprite, {
     initialize: function(x, y, i){
         enchant.Sprite.call(this, 16, 16);
-        this.image = game.assets['./src/enemy.png'];
+        this.image = game.assets['enemy.png'];
         this.x = x;
         this.y = y;
         this.i = i;
@@ -106,7 +106,7 @@ var Bullet = enchant.Class.create(enchant.Sprite, {
 var PlayerBullet = enchant.Class.create(Bullet, {
     initialize: function(x, y, angle){
         Bullet.call(this, x, y, 16, 16, -5, angle);
-        this.image = game.assets['./src/playerBullet.png'];
+        this.image = game.assets['playerBullet.png'];
         this.addEventListener('enterframe', function(){
             for(var i in enemyBullets){
                 if(enemyBullets[i].intersect(this)){
@@ -126,7 +126,7 @@ var EnemyBullet = enchant.Class.create(Bullet, {
     initialize: function(x, y, angle, i){
         Bullet.call(this, x, y, 8, 8, 5, angle);
         this.i = i;
-        this.image = game.assets['./src/enemyBullet.png'];
+        this.image = game.assets['enemyBullet.png'];
         this.addEventListener('enterframe', function(){
             if(this.intersect(player)){
                 //game.pause();
@@ -143,10 +143,10 @@ var EnemyBullet = enchant.Class.create(Bullet, {
 window.onload = function() {
     game = new Game(320, 480);
     game.fps = 60; game.score = 0; game.touched = false;
-    game.preload('./src/player.png');
-    game.preload('./src/playerBullet.png');
-    game.preload('./src/enemy.png');
-    game.preload('./src/enemyBullet.png');
+    game.preload('player.png');
+    game.preload('playerBullet.png');
+    game.preload('enemy.png');
+    game.preload('enemyBullet.png');
     game.score = 0;
     var scoreLabel = new Label("SCORE : 0");
     scoreLabel.x = 240; scoreLabel.y = 5; scoreLabel.color = "white";
