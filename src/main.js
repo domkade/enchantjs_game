@@ -8,46 +8,58 @@ var Player = enchant.Class.create(enchant.Sprite, {
         enchant.Sprite.call(this, 48, 48);
         this.image = game.assets['./src/player.png'];
         this.x = x; this.y = y; this.frame = 2;
+	this.touched = false;
         game.keybind(90, 'shot1');
         game.keybind(88, 'shot2');
-        game.rootScene.addEventListener('touchstart', function(e){ player.x = e.x; game.touched = true; });
-        game.rootScene.addEventListener('touchend', function(e){ player.x = e.x; game.touched = false; });
-        game.rootScene.addEventListener('touchmove', function(e){ player.x = e.x; });
-        game.rootScene.addEventListener('enterframe', function() {
+        game.rootScene.addEventListener('touchstart', function(e){
+	    player.x = e.x - 24;
+	    player.y = e.y - 48;
+	    game.touched = true;
+	});
+        game.rootScene.addEventListener('touchend', function(e){
+	    player.x = e.x - 24;
+	    player.y = e.y - 48;
+	    game.touched = false;
+	});
+        game.rootScene.addEventListener('touchmove', function(e){
+	    player.x = e.x - 24;
+	    player.y = e.y - 48;
+	});
+        this.addEventListener('enterframe', function() {
             var speed = 3;
-            player.flameCount++;
+            this.flameCount++;
             if ((game.input.up || game.input.down) && (game.input.right || game.input.left)){
                speed *= 0.71;
             }
             if (game.input.up) {
-                player.y -= speed;
+                this.y -= speed;
             }
             if (game.input.down) {
-                player.y += speed;
+                this.y += speed;
             }
             if (game.input.right) {
-                player.x += speed;
-                if(player.frame < 4 && game.frame % 5 == 0){
-                    player.frame++;
+                this.x += speed;
+                if(this.frame < 4 && game.frame % 5 == 0){
+                    this.frame++;
                 }
             }else if (game.input.left) {
-                player.x -= speed;
-                if(player.frame > 0 && game.frame % 5 == 0){
-                    player.frame--;
+                this.x -= speed;
+                if(this.frame > 0 && game.frame % 5 == 0){
+                    this.frame--;
                 }
             }else{
                 if(game.frame % 5 == 0){
-                    if(player.frame < 2)player.frame++;
-                    if(player.frame > 2)player.frame--;
+                    if(this.frame < 2)this.frame++;
+                    if(this.frame > 2)this.frame--;
                 }
             }
-            if(game.input.shot1 && game.frame % 5 == 0){
+            if((game.input.shot1 || game.touched) && game.frame % 5 == 0){
 		for(i = -2; i <= 2; i++){
-                    new PlayerBullet(player.x + 16, player.y, 90 + i * 10, 0);
+                    new PlayerBullet(this.x + 16, this.y, 90 + i * 10, 0);
 		}
             }else if(game.input.shot2 && game.frame % 5 == 0){
 		for(i = -2; i <= 2; i++){
-                    new PlayerBullet(player.x + 16, player.y, 90 + i * 10, 1);
+                    new PlayerBullet(this.x + 16, this.y, 90 + i * 10, 1);
 		}
             }
         });
