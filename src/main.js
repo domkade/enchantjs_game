@@ -210,16 +210,24 @@ window.onload = function() {
     game.preload('./src/enemyBullet.png');
     game.preload('./src/item.png');
     game.score = 0;
-    var scoreLabel = new Label("SCORE : 0");
-    scoreLabel.x = 240; scoreLabel.y = 5; scoreLabel.color = "white";
+    var scoreLabel = new Label("FPS : ?");
+    scoreLabel.x = 200; scoreLabel.y = 5; scoreLabel.color = "white";
     game.rootScene.addChild(scoreLabel);
     enemies = [];
     enemyBullets = [];
+    var elapsedTotal = 0;
+    var fpsFrameCount = 0;
     game.onload = function() {
         player = new Player(160, 300);
         game.rootScene.backgroundColor = 'black';
-        game.addEventListener('enterframe', function(){
-            scoreLabel.text = "EB : " + enemyBullets.length;
+        game.addEventListener('enterframe', function(e){
+	    elapsedTotal += e.elapsed;
+	    fpsFrameCount++;
+	    if(elapsedTotal > 1000){
+		scoreLabel.text = "FPS : " + (1000 / elapsedTotal * fpsFrameCount);
+		elapsedTotal = 0;
+		fpsFrameCount = 0;
+	    }
             if(Math.random() < 0.03){
                 var x = Math.random() * 320;
                 var enemy = new Enemy(x, 0, enemies.length);
