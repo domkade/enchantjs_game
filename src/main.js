@@ -123,6 +123,7 @@ var PlayerBullet = enchant.Class.create(Bullet, {
         this.addEventListener('enterframe', function(){
             for(var i in enemyBullets){
                 if(this.color == enemyBullets[i].color && enemyBullets[i].intersect(this)){
+		    new Item(this.x, this.y, this.color);
                     this.remove(); enemyBullets[i].remove();
                 }
             }
@@ -155,6 +156,39 @@ var EnemyBullet = enchant.Class.create(Bullet, {
     }
 });
 
+var Item = enchant.Class.create(enchant.Sprite, {
+    initialize: function(x, y, color){
+        enchant.Sprite.call(this, 16, 16);
+        this.x = x; this.y = y;
+	this.color = color;
+	this.frame = color;
+	this.image = game.assets['./src/item.png'];
+	this.speed = 8;
+	this.cnt = 0;
+        game.rootScene.addChild(this);
+    },
+    onenterframe:function(){
+	if(this.cnt < 30){
+	    this.y -= 1;
+	}else{
+	    var rad = Math.atan2((player.y + 24) - (this.y + 8), (player.x + 24) - (this.x + 8));
+            this.x += this.speed * Math.cos(rad);
+            this.y += this.speed * Math.sin(rad);
+	}
+        if(this.y > window_size_y || this.x > window_size_x || this.x < -this.width || this.y < -this.height){
+            this.remove();
+        }
+	if(this.intersect(player)){
+            this.remove();
+        }
+	this.cnt++;
+    },
+    remove: function(){
+        game.rootScene.removeChild(this);
+        delete this;
+    }
+});
+
 window.onload = function() {
     game = new Game(320, 480);
     game.fps = 60; game.score = 0; game.touched = false;
@@ -162,6 +196,7 @@ window.onload = function() {
     game.preload('./src/playerBullet.png');
     game.preload('./src/enemy.png');
     game.preload('./src/enemyBullet.png');
+    game.preload('./src/item.png');
     game.score = 0;
     var scoreLabel = new Label("SCORE : 0");
     scoreLabel.x = 240; scoreLabel.y = 5; scoreLabel.color = "white";
