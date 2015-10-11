@@ -8,7 +8,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
         enchant.Sprite.call(this, 48, 48);
         this.image = game.assets['./src/player.png'];
         this.x = x; this.y = y; this.frame = 2;
-        game.keybind(90, 'shot');
+        game.keybind(90, 'shot1');
+        game.keybind(88, 'shot2');
         game.rootScene.addEventListener('touchstart', function(e){ player.x = e.x; game.touched = true; });
         game.rootScene.addEventListener('touchend', function(e){ player.x = e.x; game.touched = false; });
         game.rootScene.addEventListener('touchmove', function(e){ player.x = e.x; });
@@ -40,10 +41,14 @@ var Player = enchant.Class.create(enchant.Sprite, {
                     if(player.frame > 2)player.frame--;
                 }
             }
-            if(game.input.shot && game.frame % 5 == 0){
-                new PlayerBullet(player.x, player.y, 5 * Math.PI / 12);
-                new PlayerBullet(player.x, player.y, Math.PI / 2);
-                new PlayerBullet(player.x, player.y, 7 * Math.PI / 12);
+            if(game.input.shot1 && game.frame % 5 == 0){
+                new PlayerBullet(player.x, player.y, 80, 0);
+                new PlayerBullet(player.x, player.y, 90, 0);
+                new PlayerBullet(player.x, player.y, 100, 0);
+            }else if(game.input.shot2 && game.frame % 5 == 0){
+                new PlayerBullet(player.x, player.y, 80, 1);
+                new PlayerBullet(player.x, player.y, 90, 1);
+                new PlayerBullet(player.x, player.y, 100, 1);
             }
         });
         game.rootScene.addChild(this);
@@ -74,7 +79,7 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
             this.remove();
         }
         if(this.cnt++ % 2 == 0){
-            var enemyBullet = new EnemyBullet(this.x + 4, this.y + 4, Math.random() * Math.PI, enemyBullets.length);
+            var enemyBullet = new EnemyBullet(this.x + 4, this.y + 4, Math.random() * 360, enemyBullets.length);
             enemyBullets[enemyBullets.length] = enemyBullet;
         }
     },
@@ -89,8 +94,9 @@ var Bullet = enchant.Class.create(enchant.Sprite, {
     initialize: function(x, y, xsize, ysize, speed, angle){
         enchant.Sprite.call(this, xsize, ysize);
         this.x = x; this.y = y; this.frame = 1;
-        this.vx = speed * Math.cos(angle);
-        this.vy = speed * Math.sin(angle);
+	var rad = angle * Math.PI / 180;
+        this.vx = speed * Math.cos(rad);
+        this.vy = speed * Math.sin(rad);
         game.rootScene.addChild(this);
     },
     onenterframe:function(){
@@ -107,9 +113,12 @@ var Bullet = enchant.Class.create(enchant.Sprite, {
 });
 
 var PlayerBullet = enchant.Class.create(Bullet, {
-    initialize: function(x, y, angle){
+    initialize: function(x, y, angle, color){
         Bullet.call(this, x, y, 16, 16, -5, angle);
+	this.color = color;
+	this.frame = color;
         this.image = game.assets['./src/playerBullet.png'];
+	this.rotation = angle - 90;
         this.addEventListener('enterframe', function(){
             for(var i in enemyBullets){
                 if(enemyBullets[i].intersect(this)){
