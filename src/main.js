@@ -215,17 +215,17 @@ window.onload = function() {
     game.rootScene.addChild(scoreLabel);
     enemies = [];
     enemyBullets = [];
-    var elapsedTotal = 0;
+    var fpsTotal = 0;
     var fpsFrameCount = 0;
     game.onload = function() {
         player = new Player(160, 300);
         game.rootScene.backgroundColor = 'black';
         game.addEventListener('enterframe', function(e){
-	    elapsedTotal += e.elapsed;
+	    fpsTotal += game.actualFps;
 	    fpsFrameCount++;
-	    if(elapsedTotal > 1000){
-		scoreLabel.text = "FPS : " + (1000 / elapsedTotal * fpsFrameCount);
-		elapsedTotal = 0;
+	    if(fpsFrameCount >= 60){
+		scoreLabel.text = "FPS : " + (216000 / fpsTotal).toFixed(2);
+		fpsTotal = 0;
 		fpsFrameCount = 0;
 	    }
             if(Math.random() < 0.03){
