@@ -42,13 +42,13 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 }
             }
             if(game.input.shot1 && game.frame % 5 == 0){
-                new PlayerBullet(player.x, player.y, 80, 0);
-                new PlayerBullet(player.x, player.y, 90, 0);
-                new PlayerBullet(player.x, player.y, 100, 0);
+		for(i = -2; i <= 2; i++){
+                    new PlayerBullet(player.x + 16, player.y, 90 + i * 10, 0);
+		}
             }else if(game.input.shot2 && game.frame % 5 == 0){
-                new PlayerBullet(player.x, player.y, 80, 1);
-                new PlayerBullet(player.x, player.y, 90, 1);
-                new PlayerBullet(player.x, player.y, 100, 1);
+		for(i = -2; i <= 2; i++){
+                    new PlayerBullet(player.x + 16, player.y, 90 + i * 10, 1);
+		}
             }
         });
         game.rootScene.addChild(this);
@@ -79,7 +79,8 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
             this.remove();
         }
         if(this.cnt++ % 2 == 0){
-            var enemyBullet = new EnemyBullet(this.x + 4, this.y + 4, Math.random() * 360, enemyBullets.length);
+            var enemyBullet = new EnemyBullet(this.x + 4, this.y + 4, Math.random() * 360,
+					      parseInt(Math.random() * 2), enemyBullets.length);
             enemyBullets[enemyBullets.length] = enemyBullet;
         }
     },
@@ -114,14 +115,14 @@ var Bullet = enchant.Class.create(enchant.Sprite, {
 
 var PlayerBullet = enchant.Class.create(Bullet, {
     initialize: function(x, y, angle, color){
-        Bullet.call(this, x, y, 16, 16, -5, angle);
+        Bullet.call(this, x, y, 16, 16, -10, angle);
 	this.color = color;
 	this.frame = color;
         this.image = game.assets['./src/playerBullet.png'];
 	this.rotation = angle - 90;
         this.addEventListener('enterframe', function(){
             for(var i in enemyBullets){
-                if(enemyBullets[i].intersect(this)){
+                if(this.color == enemyBullets[i].color && enemyBullets[i].intersect(this)){
                     this.remove(); enemyBullets[i].remove();
                 }
             }
@@ -135,9 +136,11 @@ var PlayerBullet = enchant.Class.create(Bullet, {
 });
 
 var EnemyBullet = enchant.Class.create(Bullet, {
-    initialize: function(x, y, angle, i){
-        Bullet.call(this, x, y, 8, 8, 5, angle);
+    initialize: function(x, y, angle, color, i){
+        Bullet.call(this, x, y, 16, 16, 5, angle);
         this.i = i;
+	this.color = color;
+	this.frame = color;
         this.image = game.assets['./src/enemyBullet.png'];
         this.addEventListener('enterframe', function(){
             if(this.intersect(player)){
